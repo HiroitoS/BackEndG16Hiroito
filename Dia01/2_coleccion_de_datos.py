@@ -58,3 +58,74 @@ print(ejercicio[3][1])
 meses = ('enero', 'Febrero', 'Marzo', 'Abril')
 
 print (meses[0])
+
+
+data = ('Juan', 'Roberto', [1, 2, 3, ['Eduardo', 'Frank']])
+
+print(data[2][3][0])
+
+#set (conjuntos)
+#Desordenada y modificable
+
+colores = {'Negro', 'Blanco', 'Guinda', 'Violeta'}
+
+print(colores)
+colores.add('Azul')
+print(colores)
+print('verde' in colores)
+colores.remove('Blanco')
+
+#Diccionarios
+#Ordenados PERO por llaves y modificables
+
+persona = {
+    'nombre' : 'Eduardo',
+    'Edad' : 31,
+    'nacionalidad' : 'PERUANO',
+    'apellido' : 'De Rivero'
+}
+
+# persona.keys(())#llaves
+print(persona.values())#valores
+print(persona['Edad'])
+#print (persona['edades]) JAVASCRIPT si no existe retorna undefined
+
+persona['nombre'] = 'Juancito'
+persona['calzado'] = 'Zapatos'#si la llave no existe, entonces la creara
+print(persona)
+
+
+persona = {
+    'nombre':"Roberto",
+    'edad': 40,
+    'hobbies': ['Nada', 'Pescar', 'Jugar videojuegos'],
+    'idiomas': [
+        {
+            'nombre': 'Ingles',
+            'nivel': 'Intermedio'
+        },
+        {
+            'nombre': 'Frances',
+            'nivel': 'Basico'
+        }
+    ],
+    'habilidades': {'Puntual', 'Economico', 'Proactivo'},
+    'debilidades': ('Mentiroso', 'Resentido', 'Comelon')
+}
+#edad
+print(persona['edad'])
+#hobbies
+print(persona['hobbies'])
+#Ultimo hobbie ingresado
+print(persona['hobbies'][-1])
+
+#Mostrar los idiomas solo sus nombres
+print(persona['idiomas'][0]['nombre'])
+print(persona['idiomas'][1]['nombre'])
+
+#ver si es proactivo
+# 5.Ver si es proactivo
+print('Proactivo' in persona['habilidades'])
+
+#ver cuantas debilidades tiene
+print(len(persona['debilidades']))
