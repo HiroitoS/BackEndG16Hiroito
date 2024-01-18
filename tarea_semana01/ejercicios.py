@@ -48,9 +48,11 @@ def arrays(arr):
     # complete this function
     # use numpy.array
     ar= np.array([], float)
+    
     for element in arr:
         ar = np.append(ar,element)
-        num = np.array(ar,float)
+        inv = ar[::-1]
+    num = np.array(inv,float)
     return num
 
 a = []
