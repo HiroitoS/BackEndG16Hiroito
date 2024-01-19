@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from uuid import uuid4
 from flask_cors import CORS
 
@@ -15,7 +15,7 @@ CORS(app=app,
      # que dominios, puede acceder a mi API, si queremos que cualquier origen se conecte colocamos el *
      origins=['http://localhost:5500', 'http://127.0.0.1:5500'], 
      # que headers (cabeceras), pueden enviar a mi API, '*
-     allow_headers=['accept', 'authorization']
+     allow_headers=['accept', 'authorization', 'content-type']
     )
 
 productos= [
@@ -54,13 +54,32 @@ def gestionProdcutos():
 #uuid> acpetar UUID's
 # al colocar un parseador su el formato que me envia el cliente no cumple con esta conversion no acpetara la conversion
 
-@app.route('/producto/<id>', methods = ['GET'])
+@app.route('/producto/<uuid:id>', methods = ['GET'])
 def gestionProducto(id):
-    print(id)
+    # tenemos una lista de productos en el cual en cada posicion tenemos un diccionario y una llave llamada id
+    # iteren esos productos y vean si existe el producto con determinado id
+    #si no existe entonces retornar un message que diga 'Producto no esxiste' con un estado 404
+    #PISTA: hacer un for con if y else de el 
+    for producto in productos:
+        if producto['id'] == id:
+            return{
+                'content': producto
+            },200
+        
     return{
-        'content':{}
-    }
+        'message': 'producto no existe'
+    },404
 
+@app.route('/producto', methods=['POST'])
+def crearProductos():
+    data = request.get_json()# convierte la data del body en un diccionario en un json
+    # antes de guardar la informacion en los productos agregarle el id
+    data['id'] = uuid4()
+    productos.append(data)
+    return{
+        'message': 'Producto creado exitosamente',
+        'content': data
+    }, 201# Created
 
 if __name__ == '__main__':
     app.run(debug=True)
