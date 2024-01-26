@@ -16,7 +16,8 @@ class UsuarioModel(conexion.Model):
     nombre = Column(type_=types.String(100), nullable=False)
     apellido = Column(type_ = types.String(100))
     fechaNacimiento = Column(name = 'fecha_nacimiento', type_=types.Date)
-    correo = Column(type_=types.String(100), unique=True)
+    correo = Column(type_=types.String(100), unique=True, nullable=False)
+    sexo = Column(type_=types.String(50), default='NINGUNO')
 
     # ahora para indicar como queremos que se llame esta tabla en la bd
     __tablename__ = 'usuarios'
