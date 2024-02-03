@@ -7,9 +7,22 @@ from flask_migrate import Migrate
 from datetime import datetime
 from marshmallow import Schema, fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from flask_swagger_ui import get_swaggerui_blueprint
+from flask_cors import CORS
+swaggerui = get_swaggerui_blueprint(
+    # indicar cual va a ser el endpoint para acceder a la documentacion 
+    base_url=  '/documentacion',
+    # dominio de la aplicacion
+    # el archivo donde se ubica la documentacion 
+    api_url=  '/static/documentacion.json',
+    config={
+        # el nombre de la aplicacion
+        'app_name' : 'API de Usuarios'
+    }
+)
 
 app = Flask(__name__)
-print(app.config)
+CORS(app=app)
 # app.config almacenara todas las variables que se utilizan en el proyecto flask
 # NOTA: No confundir con las variables de entorno!
 
@@ -22,6 +35,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost:3306/alumno
 # al momento de pasarle la aplicacion de flask en esta se encontrara la cadenas de conexion a la BD
 
 conexion.init_app(app)
+app.register_blueprint(swaggerui)
+
+
 
 
 # #Migrate sirve para registrar los cambios en nuestra base de datos realizados desde nuestra ORM
@@ -128,31 +144,85 @@ def crearUsuario():
         },400
     
 
-@app.route('/usuario/<int:id>', methods = ['GET'])
+@app.route('/usuario/<int:id>', methods = ['GET','PUT','DELETE'])
 def gestionarUsuario(id):
-    usuarioEncontrado = conexion.session.query(UsuarioModel).filter_by(id = id).first()
-    # si queremos definir que columnas utilizar al momento de hacer la consulta
-    prueba = conexion.session.query(UsuarioModel).with_entities(UsuarioModel.correo, UsuarioModel.nombre).all()
-    print(prueba)
-    if usuarioEncontrado is None:
+    if request.method == 'GET':
+        usuarioEncontrado = conexion.session.query(UsuarioModel).filter_by(id = id).first()
+        # si queremos definir que columnas utilizar al momento de hacer la consulta
+        prueba = conexion.session.query(UsuarioModel).with_entities(UsuarioModel.correo, UsuarioModel.nombre).all()
+        print(prueba)
+        if usuarioEncontrado is None:
+            return{
+                'message' : 'El usuario no existe'
+            }, 404
+
+        # usar el UsuarioModelDTO para devolver la informacion
+        validador = UsuarioModelDTO()
+        resultado = validador.dump(usuarioEncontrado)
         return{
-            'message' : 'El usuario no existe'
-        }, 404
+            'content' : resultado
+        },200
 
-    # usar el UsuarioModelDTO para devolver la informacion
-    validador = UsuarioModelDTO()
-    resultado = validador.dump(usuarioEncontrado)
+    elif request.method == 'PUT':
+        usuarioEncontrado = conexion.session.query(UsuarioModel).with_entities(UsuarioModel.id).filter_by(id=id).first()
+        if not usuarioEncontrado:
+            return{
+                'message' : 'Usuario no existe'
+            },404
+        # si existe el usuario
+        validador = UsuarioDTO()
+        # validamos si la informacion enviada es la correcta
+        dataValidada = validador.load(request.get_json())
+        # UPDATE usuarios SET nombre = '....', apellido='...' WHERE id=.....
+        conexion.session.query(UsuarioModel).filter_by(
+            id=id).update(dataValidada)
+        
+        #para actulizar el usuario
+        conexion.session.commit()
+        
+        return{
+            'message' : 'Usuario actualizado exitosamente'
+        },200  
+    elif request.method == 'DELETE':
+        usuarioEncontrado = conexion.session.query(UsuarioModel).with_entities(
+            UsuarioModel.id).filter_by(id=id).first()
+        
+        if not usuarioEncontrado:
+            return{
+                'message' : 'Usuario no existe'
+            },404
+        
+        conexion.session.query(UsuarioModel).filter_by(id=id).delete()
+
+        conexion.session.commit()
+
+        #cuando hacemos una eliminacion no se devuelve nada y se utiliza el estado 204 (NO CONTENT)
+        return {}, 204
+
+@app.route('/usuario/deshabilitar/<int:id>', methods=['DELETE'])
+def alternarUsuarioHabilitado(id):
+    usuarioEncontrado = conexion.session.query(UsuarioModel).with_entities(
+            UsuarioModel.id).filter_by(id=id).first()
+    if not usuarioEncontrado:
+            return{
+                'message' : 'Usuario no existe'
+            },404
+    
+    conexion.session.query(UsuarioModel).filter_by(id=id).update({'activo': False})
+
+    conexion.session.commit()
+
     return{
-        'content' : resultado
-    },200
-
+        'message' : 'Usuario inhabilitado exitosamente'
+    }
+        
 
 
 @app.route('/')
 def incial():
     return{
         'message':'Bienvenido a mi API de usuarios'
-    },
+    }
 
 if __name__ == '__main__':
     app.run(debug=True)
