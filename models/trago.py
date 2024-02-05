@@ -2,7 +2,7 @@ from sqlalchemy import Column, types
 from variables import conexion
 
 
-class TragoModel(conexion.Model):
+class Trago(conexion.Model):
 
     __tablename__ = 'tragos'
 
@@ -13,5 +13,6 @@ class TragoModel(conexion.Model):
     # server_default > sirve para indicar el valor por 
     #defecto A NIVEL DE BD en el caso que no se ingrese 
     #al momento de hacer una creacion
-    disponible = Column(types_=types.Boolean,
-                        server_default=True)
+    disponible = Column(type_=types.Boolean,
+                        server_default='true'
+                        )
