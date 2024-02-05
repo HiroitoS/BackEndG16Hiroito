@@ -14,5 +14,5 @@ class Trago(conexion.Model):
     #defecto A NIVEL DE BD en el caso que no se ingrese 
     #al momento de hacer una creacion
     disponible = Column(type_=types.Boolean,
-                        server_default='true'
+                        server_default='1'
                         )
