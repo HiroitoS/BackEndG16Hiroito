@@ -24,4 +24,4 @@ class Pedido(conexion.Model):
                       nullable=False, name='invitado_id')
 
     barman = Column(ForeignKey(column='barmans.id'),
-                    nullable=False, name='man_id')
+                    name='man_id')

@@ -8,7 +8,7 @@ from models import *
 from controllers import *
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
-
+from datetime import timedelta
 
 
 # leera el archivo .env si existe y agregara las variablesal entorno 
@@ -21,7 +21,13 @@ app= Flask(__name__)
 api = Api(app=app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URL')
+
+# configuraciones para mi JWT
+
+
+
 app.config['JWT_SECRET_KEY'] = environ.get('JWT_SECRET_KEY')
+app.config['JWT_ACCES_TOKEN_EXPIRES'] = timedelta(hours=1, minutes=30) #90
 
 conexion.init_app(app)
 
@@ -34,6 +40,8 @@ Migrate(app=app, db=conexion)
 api.add_resource(InvitadosController, '/invitados')
 api.add_resource(BarmanController, '/barman')
 api.add_resource(LoginController, '/login')
+api.add_resource(LoginInvitadoController, '/login-invitado')
+api.add_resource(PedidosController, '/pedidos')
 
 
 
