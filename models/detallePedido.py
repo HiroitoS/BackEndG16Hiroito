@@ -1,4 +1,4 @@
-from sqlalchemy import Column, types, ForeignKey
+from sqlalchemy import Column, types, ForeignKey, orm
 from variables import conexion
 
 class DetallePedido(conexion.Model):
@@ -8,8 +8,16 @@ class DetallePedido(conexion.Model):
                 primary_key=True)
     cantidad = Column(type_=types.Integer, nullable=False)
 
-    trago = Column(ForeignKey(column='tragos.id'), 
+    tragoId = Column(ForeignKey(column='tragos.id'), 
                    name='trago_id', nullable=False)
     
-    pedido = Column(ForeignKey(column='pedidos.id'),
+    pedidoId = Column(ForeignKey(column='pedidos.id'),
                     name='pedido_id', nullable=False)
+    # el nombre del modelo en el cual quiero crear mi relacion virtual
+    # NOTA: esto no afecta en nada el funcionamiento a nivel de base de datos
+    # backref > creara un atributo virutal en nuestro modelo en el cual estamos creando la realacion, es decir
+    # ahora en DetallePedido tendremos un nuevo atributo llamado 'detallePedidos' que este nos 
+    #devolvera todos sus detalles pedidos
+    pedido =  orm.relationship('Pedido', backref='detallePedidos')
+
+    trago = orm.relationship('Trago', backref='tragoPedido')

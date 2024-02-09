@@ -1,14 +1,17 @@
 from flask_restful import Resource, request
 from models import Pedido, DetallePedido, Trago
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
-from decoradores import validar_invitado
-from dtos import CrearPedidoDTO
+from decoradores import validar_invitado, validar_barman
+from dtos import CrearPedidoDTO, ListarPedidosDTO
 from variables import conexion
+
 class PedidosController(Resource):
     # cuando queremos que in controlador requierade manera obligatoria un token
     # @jwt_required()
     @validar_invitado
+    
     def post(self):
+
         # para acceder al indetity configurado en la cfeacion 
         identity = get_jwt_identity()
         # devolvera el payload de la token y dentro de ella todas sus propiedades
@@ -45,4 +48,19 @@ class PedidosController(Resource):
             return{
                 'message': 'Error al crear el pedido',
                             'content': e.args         
-            },400
+            },
+
+    @ validar_barman
+    def get(self):
+        #devolver los pedidos pero solamente lo pueden ver los barmans crear un DTO para transformar la data al momento de enviarla
+        pedidos = conexion.session.query(Pedido).all()
+        print(pedidos[1].detallePedidos)
+        dto = ListarPedidosDTO()
+        # many > indicar que estaremos pasando una lista de instancias por lo que lo 
+        #tendra que iterar y transformar cada una de ellas
+
+        resultado = dto.dump(pedidos, many=True)
+
+        return{
+            'content': resultado
+        }, 200
