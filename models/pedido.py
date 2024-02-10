@@ -1,7 +1,8 @@
-from sqlalchemy import Column, types, ForeignKey
+from sqlalchemy import Column, types, ForeignKey,orm
 from variables import conexion
 from enum import Enum
 from sqlalchemy.sql import func
+
 class EstadoPedidoEnum(Enum):
     ATENDIDO = 'ATENDIDO'
     EN_ESPERA = 'EN_ESPERA'
@@ -27,3 +28,7 @@ class Pedido(conexion.Model):
 
     barmanId = Column(ForeignKey(column='barmans.id'),
                     name='man_id')
+
+    # ahora en nuestra tabala invitado se creara un atributo virtual llamados pedidos  y a si 
+    # vez en el pedido podremos ingresar a toda la instancia del invitado por su atributo invitado( haciendo un inner join)
+    invitado = orm.relationship(argument='Invitado', backref='pedidos')

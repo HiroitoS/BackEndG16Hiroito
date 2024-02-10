@@ -5,6 +5,7 @@ from decoradores import validar_invitado, validar_barman
 from dtos import CrearPedidoDTO, ListarPedidosDTO
 from variables import conexion
 
+
 class PedidosController(Resource):
     # cuando queremos que in controlador requierade manera obligatoria un token
     # @jwt_required()
@@ -50,8 +51,14 @@ class PedidosController(Resource):
                             'content': e.args         
             },
 
-    @ validar_barman
+    @validar_barman
     def get(self):
+        """
+        file: controllers/devolverPedidos.yml
+        """
+
+
+
         #devolver los pedidos pero solamente lo pueden ver los barmans crear un DTO para transformar la data al momento de enviarla
         pedidos = conexion.session.query(Pedido).all()
         print(pedidos[1].detallePedidos)

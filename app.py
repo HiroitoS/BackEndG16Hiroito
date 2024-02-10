@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_migrate import Migrate
-from variables import conexion
+from variables import conexion, clienteTwilio
 from dotenv import load_dotenv
 # os > operating system
 from os import environ
@@ -11,6 +11,8 @@ from flask_jwt_extended import JWTManager, get_jwt_identity
 from datetime import timedelta
 from decoradores import validar_barman
 from models.pedido import EstadoPedidoEnum
+from flasgger import Swagger
+from json import load
 
 
 # leera el archivo .env si existe y agregara las variablesal entorno 
@@ -33,6 +35,29 @@ app.config['JWT_ACCES_TOKEN_EXPIRES'] = timedelta(hours=1, minutes=30) #90
 
 conexion.init_app(app)
 
+swaggerConfig={
+    'headers':[],# las cabeceras que podra aceptar nuestra documentacion
+    'specs':[
+        {
+            'endpoint': '',# el endpoint incial de nuestra documentacion 
+            # mi ruta base de mi documentacion (hacia donde hara los request)
+            'route': '/'
+        }
+    ],
+    # Donde cargara los archivos staticos de swagger para la interfaz grafica 
+    # para idnicar esto tenemos que colocar la opcion 'swagger_ui: True sino podemos
+    # obviar este paso
+    'static_url_path': '/flassger_static',
+    # el endpoint en el cual ahora estara alojada la documentacion de swagger 
+    'specs_route': '/documentacion'
+
+}
+
+
+swaggerTemplate= load(open('swagger_template.json'))
+
+Swagger(app=app, template=swaggerTemplate, config=swaggerConfig)
+
 JWTManager(app=app)
 # Esto crea la utilizacion de las migraciones en nuestro proyecto de flask
 Migrate(app=app, db=conexion)
@@ -44,13 +69,20 @@ api.add_resource(BarmanController, '/barman')
 api.add_resource(LoginController, '/login')
 api.add_resource(LoginInvitadoController, '/login-invitado')
 api.add_resource(PedidosController, '/pedidos')
+api.add_resource(TragosController, '/tragos')
 
 
 
 @app.route('/preparar-pedido/<int:id>', methods=['POST'])
 @validar_barman
 def prepararPedido(id):
+    """
+    file: prepararPedido.yml
+    """
     barmanId=get_jwt_identity()
+
+
+
     # primero buscar si existe el pedido con ese id
 
     # buscar si el pedido aun no tiene un barman seleccionado
@@ -92,9 +124,20 @@ def pedidoPreparado(id):
     #Cambiar su estado a 
     conexion.session.query(Pedido).filter(
         Pedido.id==pedido_encontrado.id).update({
-            Pedido.estado:EstadoPedidoEnum.PREPARADO
-        })
+            Pedido.estado:EstadoPedidoEnum.PREPARADO})
+    
+    
     conexion.session.commit()
+
+    mensaje= clienteTwilio.messages.create(
+        from_ = '+18704844820',
+        to=f'+51{pedido_encontrado.invitado.telefono}',
+        body = f'''Hola {pedido_encontrado.invitado.nombre}.
+Tu pedido de la barra ya esta listo, puedes retirarlo 🍸'''
+    )
+    # sid> identificador del mensaje por si lo queremos validar en la pagina de twilio
+    print(mensaje.sid)
+
     return{
         'message': 'Pedido encontrado'
     },200
