@@ -1,0 +1,10 @@
+1. django-admin startproject NOMBRE_COMPLETO [UBICACION>]> inicializa un nuevo proyecto 
+colocandole la ubicacion
+
+2 python manage.py runserver > levante el servidor
+
+3. python manage.py showmigrations > muetsra el listado de migraciones y las qyue han sido ejecutados con un [X]
+4. python manage,py migrate        > ejecuta las migraciones restantes
+5. python manage.py sqlmigrate NOMBRE_APP NUM_MIGRACION  > mostrar el codigo de esa migracion pero no la ejecutara
+6. python manage.py superusaersour
+7. python manage.py startapp NOMBRE_APP
