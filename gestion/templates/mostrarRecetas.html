@@ -1,0 +1,17 @@
+{# si queremos reutilizar algun archivo html previamente creado usamos la etiqueta extends#}
+{% extends "base.html" %}
+{# sirve para cargar los archivos estaticos de nuestra aplicacion#}
+{% load static %}
+
+
+{% block encabezado %}
+Pagina Mostrar Recetas
+{% endblock encabezado%}
+
+{% block contenido %}
+
+<link rel="stylesheet" href="{% static 'css/prueba.css' %}"/>
+<p class="letraMorada">blablablabla</p>
+
+<img src ="{% static 'recetario.jpeg' %}" alt="">
+{% endblock contenido%}
