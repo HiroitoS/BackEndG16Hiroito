@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-
+from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'gestion', # cada vez que creamos o agregamos una aplicacion al proyecto esta se agrega en esta seccion sino django no la reconocera
-    'rest_framework'
+    'rest_framework',
+    'drf_yasg',
+    'rest_framework_simplejwt'
 ]
 
 MIDDLEWARE = [
@@ -136,3 +138,28 @@ MEDIA_ROOT = BASE_DIR / 'archivos'
 # variable que sirvira para indicar la ruta de nuestros archivos declarados en la variable MEADIA_ROOT
 # si no quieren colocar un prefijo en el archivo coloquen el '/'
 MEDIA_URL = '/'
+
+
+SWAGGER_SETTINGS={
+    'DEFAULT_MODEL_RENDERING':'example'
+}
+
+# indicar si cambiamos el auth user a uno nuevo
+AUTH_USER_MODEL = 'gestion.Cheff'
+
+
+#Mofificar las configuraciones de mi Django Rest Framework
+
+REST_FRAMEWORK ={
+    # Sirve para indicar a DRF que ahora la autenticacion la realizara mediante la nueva libreria agregada
+    'DEFAULT_AUTHENTICATION_CLASSES':(
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+
+# https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html
+SIMPLE_JWT ={
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1, minutes=30)
+
+}   

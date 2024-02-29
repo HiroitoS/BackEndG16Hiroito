@@ -20,9 +20,24 @@ from gestion.views import vistaPrueba
 from django.conf.urls.static import static
 # importa todas las variables declaradas en mi archivo settings.py
 from django.conf import settings 
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+swagger_view = get_schema_view(
+    openapi.Info(
+        title ='API de recetario',
+        default_version='v1',
+        descripcion ='API para gestionar el uso de un recetario con autenticacion',
+        contact=openapi.Contact(name='Hiroito Sanchez',
+                                email='hitoito.sanchez@gmail.com')
+    ),
+    public=True
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     #si queremos agregar un archivo con otras rutas, entonces usaremos el metodo include
-    path('gestion/', include('gestion.urls') )
+    path('gestion/', include('gestion.urls') ),
+    path('documentacion/',swagger_view.with_ui('swagger', cache_timeout=0))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # agregando a unas rutas del proyecto la ruta 'static/' con todo el contenido declarado en media_root 
