@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL2")
+}
+
+model Categoria{
+  id String @id @default(uuid()) @db.Uuid
+  nombre String @unique
+  productos Producto[] 
+
+  @@map("categorias")
+}
+
+model Producto{
+  id String @id @default(uuid()) @db.Uuid
+  nombre String @unique
+  precio Float
+  disponibilidad Boolean @default(true)
+  imagen String?
+  descripcion String?
+  DetallePedido DetallePedido[]
+  categoriaId String @map("categoria_id") @db.Uuid
+  categoria Categoria @relation(fields: [categoriaId], references: [id])
+
+  @@map("productos")
+}
+
+model Usuario{
+  id String @id @default(uuid()) @db.Uuid
+  nombre String
+  apellido String
+  correo String @unique
+  password String
+  tipoUsuario TipoUsuario @default(CLIENTE) @map ("tipo_usuario")
+
+  direcciones Direccion[]
+  pedidos Pedido[]
+  @@map("usuarios")
+}
+
+model Direccion{
+  id String @id @default(uuid()) @db.Uuid
+  calle String
+  numero String
+  distrito String
+  provincia String
+  departamento String
+
+  clienteId String @map("cliente_id") @db.Uuid
+  cliente Usuario @relation(fields: [clienteId], references: [id])
+
+  pedidos Pedido[]
+
+  @@map("direcciones")
+}
+
+model Pedido{
+  id String @id @default(uuid()) @db.Uuid
+  fecha DateTime 
+  total Float
+  estado EstadoPedido
+  clienteId String @map("cliente_id") @db.Uuid
+  direccionId String? @map("direccion_id") @db.Uuid
+  detallePedidos DetallePedido[]
+  
+  cliente Usuario @relation(fields: [clienteId], references: [id])
+
+  direccion Direccion? @relation(fields: [direccionId], references: [id])
+}
+
+model DetallePedido{
+  id String @id @default(uuid()) @db.Uuid
+  cantidad Int
+  precio Float
+
+  pedidoId String @map("pedido_id") @db.Uuid
+  productoId String @map("producto_id") @db.Uuid
+
+  pedidos Pedido @relation(fields: [pedidoId], references: [id])
+
+  productos Producto @relation(fields: [productoId], references: [id])
+
+  @@map("deallepedido")
+}
+enum TipoUsuario {
+  ADMIN
+  EMPLEADO
+  CLIENTE
+}
+
+enum EstadoPedido {
+  RECIBIDO
+  EN_PREPARACION
+  COMPLETADO
+}
+
